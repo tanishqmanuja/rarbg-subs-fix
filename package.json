@@ -1,0 +1,33 @@
+{
+  "name": "rarbg-subs-fix",
+  "version": "1.0.0",
+  "description": "Helper to copy and rename RARBG subtitles appropriately.",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "rarbgfix": "./dist/index.js",
+    "rarbg-subs-fix": "./dist/index.js"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsup",
+    "build:watch": "tsup --watch"
+  },
+  "keywords": [
+    "rarbg"
+  ],
+  "author": "tanishqmanuja",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.14.3",
+    "tsup": "^6.6.3",
+    "tsx": "^3.12.3",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "chalk": "^5.2.0",
+    "fp-ts": "^2.13.1",
+    "log-symbols": "^5.1.0",
+    "ts-extras": "^0.11.0"
+  }
+}
