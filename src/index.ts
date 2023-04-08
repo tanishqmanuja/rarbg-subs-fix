@@ -18,7 +18,7 @@ import {
 	Subtitles,
 } from "./helpers.js";
 
-const ROOT_DIR = join(cwd(), ".");
+const ROOT_DIR = process.argv.at(2) ?? join(cwd(), ".");
 
 function fixSubtitles(dir: string) {
 	const getSubsDir = () => TE.tryCatch(() => getSubsDirInDir(dir), E.toError);
