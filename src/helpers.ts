@@ -8,9 +8,7 @@ const LANGUAGE_CODE = "en";
 const VIDEO_EXTS = [".mkv", ".mp4"];
 
 export type SubtitleType = "full" | "sdh" | "forced" | "fallback";
-export type Subtitles = {
-	[k in SubtitleType]?: string;
-};
+export type Subtitles = { [k in SubtitleType]?: string };
 
 export async function getSubsDirInDir(dir: string) {
 	const [folder] = await readdir(dir, { withFileTypes: true })
