@@ -77,13 +77,14 @@ export async function getSubtitlesInDir(dir: string): Promise<Subtitles> {
 	);
 }
 
+function getSubtitleSuffix(type: SubtitleType) {
+	return `.${LANGUAGE_CODE}${["full", "fallback"].includes(type) ? "" : `.${type}`}`;
+}
+
 export async function copySubtitlesFileForVideo(
 	video: string,
 	subtitles: Subtitles
 ) {
-	const getSubtitleSuffix = (type: SubtitleType) =>
-		`.${LANGUAGE_CODE}${["full", "fallback"].includes(type) ? "" : `.${type}`}`;
-
 	return Promise.all(
 		objectEntries(subtitles).map(([type, subtitle]) =>
 			copyFile(
