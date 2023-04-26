@@ -70,7 +70,7 @@ export async function getSubtitlesInDir(dir: string): Promise<Subtitles> {
 		forced: findSubs(`4_${LANGUAGE.toLowerCase()}`),
 	};
 
-	if(Object.keys(subs).length < 1) {
+	if(!Object.values(subs).some(Boolean)) {
 		subs.fallback = files.at(0);
 	}
 
