@@ -7,7 +7,7 @@ const LANGUAGE = "English";
 const LANGUAGE_CODE = "en";
 const VIDEO_EXTS = [".mkv", ".mp4"];
 
-export type SubtitleType = "full" | "sdh" | "forced";
+export type SubtitleType = "full" | "sdh" | "forced" | "fallback";
 export type Subtitles = {
 	[k in SubtitleType]?: string;
 };
@@ -64,11 +64,15 @@ export async function getSubtitlesInDir(dir: string): Promise<Subtitles> {
 	const findSubs = (includedText: string) =>
 		files.find(f => f.toLowerCase().includes(includedText));
 
-	const subs = {
+	const subs: Subtitles = {
 		full: findSubs(`2_${LANGUAGE.toLowerCase()}`),
 		sdh: findSubs(`3_${LANGUAGE.toLowerCase()}`),
 		forced: findSubs(`4_${LANGUAGE.toLowerCase()}`),
-	} satisfies Subtitles;
+	};
+
+	if(Object.keys(subs).length < 1) {
+		subs.fallback = files.at(0);
+	}
 
 	return objectFromEntries(
 		objectEntries(subs).filter(([_, v]) => v !== undefined)
@@ -80,7 +84,7 @@ export async function copySubtitlesFileForVideo(
 	subtitles: Subtitles
 ) {
 	const getSubtitleSuffix = (type: SubtitleType) =>
-		`.${LANGUAGE_CODE}${type !== "full" ? `.${type}` : ""}`;
+		`.${LANGUAGE_CODE}${["full", "fallback"].includes(type) ? "" : `.${type}`}`;
 
 	return Promise.all(
 		objectEntries(subtitles).map(([type, subtitle]) =>
