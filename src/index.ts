@@ -1,11 +1,10 @@
 import { cwd } from "node:process";
 import { join, parse } from "node:path";
-import { isNativeError } from "node:util/types";
 
 import chalk from "chalk";
 import logSymbols from "log-symbols";
 import { array as A, either as E, task as T, taskEither as TE } from "fp-ts";
-import { identity, pipe } from "fp-ts/lib/function.js";
+import { pipe } from "fp-ts/lib/function.js";
 import { sequenceS } from "fp-ts/lib/Apply.js";
 import { toUpperCase } from "fp-ts/lib/string.js";
 import { objectKeys } from "ts-extras";
@@ -19,6 +18,10 @@ import {
 } from "./helpers.js";
 
 const ROOT_DIR = process.argv.at(2) ?? join(cwd(), ".");
+
+type SubtitleOkResult = { video: string; subtitle: Subtitles }
+type SubtitleErrorResult = { video: string; error: Error }
+type SubtitleResult = SubtitleOkResult | SubtitleErrorResult
 
 function fixSubtitles(dir: string) {
 	const getSubsDir = () => TE.tryCatch(() => getSubsDirInDir(dir), E.toError);
@@ -47,22 +50,25 @@ function fixSubtitles(dir: string) {
 						getSubs(video, subsDir, videos.length === 1),
 						TE.chainFirst(subtitle => copySubs(video, subtitle)),
 						TE.matchW(
-							error => ({ video, error }),
-							subtitle => ({ video, subtitle })
+							error => ({ video, error }) as SubtitleErrorResult,
+							subtitle => ({ video, subtitle }) as SubtitleOkResult
 						)
 					)
 				),
 				T.sequenceArray
 			)
 		),
-		TE.matchW(identity, async t => await t())
+		TE.match(handleError, async t => handleResults(await t()))
 	)();
 }
 
-const res = await fixSubtitles(ROOT_DIR);
+function handleError(error: Error){
+	console.log(chalk.red(error.message));
+	return process.exit(1);	
+}
 
-if (!isNativeError(res)) {
-	res.forEach(it => {
+function handleResults(results: ReadonlyArray<SubtitleResult>) {
+	results.forEach(it => {
 		if ("subtitle" in it) {
 			console.log(
 				chalk.green(logSymbols.success, parse(it.video).base),
@@ -75,6 +81,9 @@ if (!isNativeError(res)) {
 			);
 		}
 	});
-} else {
-	console.log(chalk.red(res.message));
 }
+
+fixSubtitles(ROOT_DIR)
+
+
+
